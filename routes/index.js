@@ -51,11 +51,7 @@ router.get('/', async (req, res, next) => {
   });
 });
 
-
-
-
-
-// routes/index.js
+// 설문조사 응답하기 버튼 클릭(4)
 router.post('/request', async (req, res, next) => {
   const { message, value } = req.body;
 
@@ -123,13 +119,12 @@ router.post('/request', async (req, res, next) => {
   res.json({});
 });
 
-// routes/index.js
+// 설문 작성 후 제출 피드백 (5)
 router.post('/callback', async (req, res, next) => {
   const { message, actions, action_time, value } = req.body; // 설문조사 결과 확인 (2)
 
   switch (value) {
     case 'cafe_survey_results':
-      // 설문조사 응답 결과 메세지 전송 (3)
       await libKakaoWork.sendMessage({
         conversationId: message.conversation_id,
         text: '설문조사에 응해주셔서 감사합니다!',
@@ -182,7 +177,5 @@ router.post('/callback', async (req, res, next) => {
 
   res.json({ result: true });
 });
-
-
 
 module.exports = router;
