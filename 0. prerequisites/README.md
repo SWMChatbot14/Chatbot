@@ -1,4 +1,7 @@
 # 사전 준비
+## 카카오 기술 문서 참고
+[웹 API 기술 문서](https://docs.kakaoi.ai/kakao_work/webapireference/)<br>
+[블록 킷 기술 문서](https://docs.kakaoi.ai/kakao_work/webapireference/)
 
 ## 목차
 <p>
