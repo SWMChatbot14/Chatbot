@@ -39,3 +39,38 @@ router.get('/', async (req, res, next) => {
   });
 });
 
+router.post('/request', async (req, res, next) => {
+  const { message, value } = req.body;
+  switch (value) {
+    case '시간 설정':
+      var options = new Array();
+      for (var h=0; h<=24; h++) {
+        Array.push({ "text": "0 0 : 0 0", "value": 0 });
+      }
+      return res.json({
+        view: {
+          title: '시간 설정',
+          accept: '확인',
+          decline: '취소',
+          value: '시간 설정 결과',
+          blocks: [
+            {
+              type: 'label',
+              text: '<br>알림받고 싶은 시간대를 정해주세요',
+              markdown: true,
+            },
+            {
+              type: 'select',
+              name: 'rating',
+              required: true,
+              options: options,
+              placeholder: '시간대',
+            },
+          ],
+        },
+      });
+      break;
+    default:
+  }
+  res.json({});
+});
