@@ -1,4 +1,5 @@
 const express = require('express');
+const { options } = require('../app');
 const router = express.Router();
 const libKakaoWork = require('../libs/kakaoWork');
 
@@ -12,7 +13,7 @@ router.get('/', async (req, res, next) => {
   // 화면 1(메세지)
   const messages = await Promise.all([
     conversations.map((conversation) =>
-      libKakaoWork.sendMesaage({
+      libKakaoWork.sendMessage({
         conversationId: conversation.id,
         text: '인삿말',
         blocks: [
@@ -51,8 +52,9 @@ router.post('/request', async (req, res, next) => {
   switch (value) {
     case '시간 설정하기':
       var options = new Array();
-      for (var h=0; h<=24; h++) {
-        Array.push({ "text": "0 0 : 0 0", "value": 0 });
+      for (var h=0; h<24; h++) {
+        var time = '0 '+h+' : 0 0';
+        options.push({ text: time, value: String(h) });
       }
       return res.json({
         view: {
@@ -68,7 +70,7 @@ router.post('/request', async (req, res, next) => {
             },
             {
               type: 'select',
-              name: 'rating',
+              name: '설정 시간대',
               required: true,
               options: options,
               placeholder: '시간대',
