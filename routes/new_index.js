@@ -25,10 +25,17 @@ router.get('/', async (req, res, next) => {
             type: 'text',
             text: '안녕하세요? 14팀입니다.',
             markdown: true,
-          }
-        ]
+          },
+          {
+            type: 'button',
+            action_type: 'call_modal',
+            value: '시간 설정하기',
+            text: '시간 설정하기',
+            style: 'default',
+          },
+        ],
       })
-    )
+    ),
   ]);
 
   // 응답값은 자유
@@ -42,7 +49,7 @@ router.get('/', async (req, res, next) => {
 router.post('/request', async (req, res, next) => {
   const { message, value } = req.body;
   switch (value) {
-    case '시간 설정':
+    case '시간 설정하기':
       var options = new Array();
       for (var h=0; h<=24; h++) {
         Array.push({ "text": "0 0 : 0 0", "value": 0 });
