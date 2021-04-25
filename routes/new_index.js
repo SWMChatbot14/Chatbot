@@ -47,15 +47,15 @@ router.get('/', async (req, res, next) => {
 
   // 응답값은 자유
   res.json({
-      users,
-      conversations,
-      messages,
+    users,
+    conversations,
+    messages,
   });
 
   var loop = 0;
   setInterval(() => {
     console.log("doing something.."+(++loop));
-    user_times.forEach((key, value, mapObject) => {
+    user_times.forEach((value, key, mapObject) => {
       console.log(key+', '+value);
     });
   }, 2000);
