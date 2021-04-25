@@ -35,7 +35,7 @@ app.use(function(err, req, res, next) {
   res.json({ err });
 });
 
-const port = 3000;
+const port = 3001;
 app.listen(process.env.PORT || port, () => console.log('Example app listening on port '+port+'!'));
 
 module.exports = app;

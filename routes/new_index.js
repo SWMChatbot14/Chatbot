@@ -24,7 +24,7 @@ router.get('/', async (req, res, next) => {
           },
 		  {
             type : "image_link",
-            url : "https://iuaapjodi-pitgw.run.goorm.io/introduction_logo2.jpeg"
+            url : "https://swm-chatbot-ovnwx9-6ee.run.goorm.io/resources/introduction_logo2.jpeg"
           },
           {
             type: 'text',
@@ -57,7 +57,9 @@ router.post('/request', async (req, res, next) => {
     case '시간 설정하기':
       var options = new Array();
       for (var h=0; h<24; h++) {
-        var time = '0 '+h+' : 0 0';
+        var time = '';
+				if (h < 10) time += '0 '+h+' : 0 0';
+				else { h = String(h); time += h[0]+' '+h[1]+' : 0 0'; }
         options.push({ text: time, value: '매 일 '+time });
       }
       return res.json({
@@ -159,11 +161,11 @@ router.get('/test_alarm', async (req, res, next) => {
           },
 		  {
             type : "image_link",
-            url : "https://iuaapjodi-pitgw.run.goorm.io/today_cloth1.png"
+            url : "https://swm-chatbot-ovnwx9-6ee.run.goorm.io/resources/today_cloth1.png"
           },
 		  {
             type : "image_link",
-            url : "https://iuaapjodi-pitgw.run.goorm.io/today_cloth2.png"
+            url : "https://swm-chatbot-ovnwx9-6ee.run.goorm.io/resources/today_cloth2.png"
           },
           {
             type: 'text',
