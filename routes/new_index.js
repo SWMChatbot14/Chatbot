@@ -15,16 +15,20 @@ router.get('/', async (req, res, next) => {
     conversations.map((conversation) =>
       libKakaoWork.sendMessage({
         conversationId: conversation.id,
-        text: '인삿말',
+        text: '[오늘 뭐입지?] 서비스 이용 안내',
         blocks: [
           {
             type: 'header',
-            text: '인삿말',
+            text: '오늘 뭐 입지?',
             style: 'blue',
+          },
+		  {
+            type : "image_link",
+            url : "https://iuaapjodi-pitgw.run.goorm.io/introduction_logo2.jpeg"
           },
           {
             type: 'text',
-            text: '안녕하세요? 14팀입니다.',
+            text: '안녕하세요! 저희는 <> 챗봇입니다. <>기능이 있습니다. <> 해서 <> 를 해보세요',
             markdown: true,
           },
           {
@@ -65,7 +69,7 @@ router.post('/request', async (req, res, next) => {
           blocks: [
             {
               type: 'label',
-              text: '<br>알림받고 싶은 시간대를 정해주세요',
+              text: '알림받고 싶은 시간대를 정해주세요',
               markdown: true,
             },
             {
@@ -73,7 +77,7 @@ router.post('/request', async (req, res, next) => {
               name: 'setting_time',
               required: true,
               options: options,
-              placeholder: '시간대',
+              placeholder: '선택',
             },
           ],
         },
@@ -92,6 +96,11 @@ router.post('/callback', async (req, res, next) => {
         conversationId: message.conversation_id,
         text: '알림 시간대 설정 완료',
         blocks: [
+		  {
+            type: 'header',
+            text: '알림 시간대 설정 완료!',
+            style: 'blue',
+          },
           {
             type: 'text',
             text: '알림 시간대가 설정되었습니다.',
@@ -128,4 +137,65 @@ router.post('/callback', async (req, res, next) => {
   res.json( { result: true });
 });
 
-// module.exports = router;
+// 지정된 시간 알림 예시
+router.get('/test_alarm', async (req, res, next) => {
+  // 유저 목록 검색
+  const users = await libKakaoWork.getUserList();
+  // 각 유저에게 채팅방 생성
+  const conversations = await Promise.all(
+    users.map((user) => libKakaoWork.openConversations({ userId: user.id }))
+  );
+  // 화면 1(메세지)
+  const messages = await Promise.all([
+    conversations.map((conversation) =>
+      libKakaoWork.sendMessage({
+        conversationId: conversation.id,
+        text: '오늘 뭐입지?',
+        blocks: [
+          {
+            type: 'header',
+            text: '<날짜> 은 뭐입지',
+            style: 'yellow',
+          },
+		  {
+            type : "image_link",
+            url : "https://iuaapjodi-pitgw.run.goorm.io/today_cloth1.png"
+          },
+		  {
+            type : "image_link",
+            url : "https://iuaapjodi-pitgw.run.goorm.io/today_cloth2.png"
+          },
+          {
+            type: 'text',
+            text: '이거 입어라',
+            markdown: true,
+          },
+          {
+            type: 'button',
+            action_type: 'call_modal',
+            value: '',
+            text: '딴거 줘',
+            style: 'default',
+          },
+		  {
+            type: 'button',
+            action_type: 'call_modal',
+            value: '시간 설정하기',
+            text: '알림 시간 바꾸기',
+            style: 'default',
+          },
+        ],
+      })
+    ),
+  ]);
+
+  // 응답값은 자유
+  res.json({
+      users,
+      conversations,
+      messages,
+  });
+});
+
+
+module.exports = router;
