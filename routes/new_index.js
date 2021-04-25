@@ -3,6 +3,8 @@ const express = require('express');
 const router = express.Router();
 const libKakaoWork = require('../libs/kakaoWork');
 
+var user_times = new Map();
+
 router.get('/', async (req, res, next) => {
   // 유저 목록 검색
   const users = await libKakaoWork.getUserList();
@@ -22,7 +24,7 @@ router.get('/', async (req, res, next) => {
             text: '오늘 뭐 입지?',
             style: 'blue',
           },
-		  {
+		      {
             type : "image_link",
             url : "https://swm-chatbot-ovnwx9-6ee.run.goorm.io/resources/introduction_logo2.jpeg"
           },
@@ -49,6 +51,14 @@ router.get('/', async (req, res, next) => {
       conversations,
       messages,
   });
+
+  var loop = 0;
+  setInterval(() => {
+    console.log("doing something.."+(++loop));
+    user_times.forEach((key, value, mapObject) => {
+      console.log(key+', '+value);
+    });
+  }, 2000);
 });
 
 router.post('/request', async (req, res, next) => {
@@ -98,7 +108,7 @@ router.post('/callback', async (req, res, next) => {
         conversationId: message.conversation_id,
         text: '알림 시간대 설정 완료',
         blocks: [
-		  {
+		      {
             type: 'header',
             text: '알림 시간대 설정 완료!',
             style: 'blue',
@@ -132,6 +142,10 @@ router.post('/callback', async (req, res, next) => {
           },
         ],
       });
+      var st = actions.setting_time;
+      var h = st[4] > '0'? st[4]+st[6]: st[6];
+      h = Number(h);
+      user_times.set(message.user_id, h);
     break;
     default:
   }
@@ -159,11 +173,11 @@ router.get('/test_alarm', async (req, res, next) => {
             text: '<날짜> 은 뭐입지',
             style: 'yellow',
           },
-		  {
+		      {
             type : "image_link",
             url : "https://swm-chatbot-ovnwx9-6ee.run.goorm.io/resources/today_cloth1.png"
           },
-		  {
+		      {
             type : "image_link",
             url : "https://swm-chatbot-ovnwx9-6ee.run.goorm.io/resources/today_cloth2.png"
           },
@@ -179,7 +193,7 @@ router.get('/test_alarm', async (req, res, next) => {
             text: '딴거 줘',
             style: 'default',
           },
-		  {
+		      {
             type: 'button',
             action_type: 'call_modal',
             value: '시간 설정하기',
