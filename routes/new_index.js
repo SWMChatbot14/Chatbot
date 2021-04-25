@@ -1,5 +1,5 @@
+// routes/index.js
 const express = require('express');
-const { options } = require('../app');
 const router = express.Router();
 const libKakaoWork = require('../libs/kakaoWork');
 
@@ -54,7 +54,7 @@ router.post('/request', async (req, res, next) => {
       var options = new Array();
       for (var h=0; h<24; h++) {
         var time = '0 '+h+' : 0 0';
-        options.push({ text: time, value: String(h) });
+        options.push({ text: time, value: '매 일 '+time });
       }
       return res.json({
         view: {
@@ -70,7 +70,7 @@ router.post('/request', async (req, res, next) => {
             },
             {
               type: 'select',
-              name: '설정 시간대',
+              name: 'setting_time',
               required: true,
               options: options,
               placeholder: '시간대',
@@ -83,3 +83,49 @@ router.post('/request', async (req, res, next) => {
   }
   res.json({});
 });
+
+router.post('/callback', async (req, res, next) => {
+  const { message, actions, action_time, value } = req.body;
+  switch (value) {
+    case '시간 설정 결과':
+      await libKakaoWork.sendMessage({
+        conversationId: message.conversation_id,
+        text: '알림 시간대 설정 완료',
+        blocks: [
+          {
+            type: 'text',
+            text: '알림 시간대가 설정되었습니다.',
+            markdown: true,
+          },
+          {
+            type: 'text',
+            text: '*설정 시간대*',
+            markdown: true,
+          },
+          {
+            type: 'description',
+            term: '결과',
+            content: {
+              type: 'text',
+              text: actions.setting_time,
+              markdown: false,
+            },
+            accent: true,
+          },
+          {
+            type: 'button',
+            action_type: 'call_modal',
+            value: '시간 설정하기',
+            text: '다시 시간 설정하기',
+            style: 'default',
+          },
+        ],
+      });
+    break;
+    default:
+  }
+	
+  res.json( { result: true });
+});
+
+// module.exports = router;
