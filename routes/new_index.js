@@ -4,8 +4,6 @@ const router = express.Router();
 const libKakaoWork = require('../libs/kakaoWork');
 const db = require('../libs/db/on_memory');
 
-var user_times = new Map();
-
 router.get('/', async (req, res, next) => {
   // 유저 목록 검색
   const users = await libKakaoWork.getUserList();
@@ -52,14 +50,6 @@ router.get('/', async (req, res, next) => {
     conversations,
     messages,
   });
-
-  var loop = 0;
-  setInterval(() => {
-    console.log("doing something.."+(++loop));
-    user_times.forEach((value, key, mapObject) => {
-      console.log(key+', '+value);
-    });
-  }, 2000);
 });
 
 router.post('/request', async (req, res, next) => {
@@ -146,7 +136,12 @@ router.post('/callback', async (req, res, next) => {
       var st = actions.setting_time;
       var h = st[4] > '0'? st[4]+st[6]: st[6];
       h = Number(h);
-      user_times.set(message.user_id, h);
+      db.addUser(h, message.user_id);
+			
+			console.log("time:"+h+", "+db.user_times[h]);
+			db.user_times[h].forEach((val1, val2, setObject) => {
+				console.log(val1, val2);
+			});
     break;
     default:
   }
@@ -213,6 +208,5 @@ router.get('/test_alarm', async (req, res, next) => {
       messages,
   });
 });
-
 
 module.exports = router;
