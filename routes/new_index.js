@@ -136,11 +136,11 @@ router.post('/callback', async (req, res, next) => {
       var st = actions.setting_time;
       var h = st[4] > '0'? st[4]+st[6]: st[6];
       h = Number(h);
-      db.addUser(h, message.user_id);
+      db.addUser(message.user_id, h);
 			
 			console.log("time:"+h+", "+db.user_times[h]);
-			db.user_times[h].forEach((val1, val2, setObject) => {
-				console.log(val1, val2);
+			db.user_times[h].forEach((val, key, mapObject) => {
+				console.log(key, val);
 			});
     break;
     default:
