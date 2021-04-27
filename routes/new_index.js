@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const libKakaoWork = require('../libs/kakaoWork');
+const db = require('../libs/db/on_memory');
 
 var user_times = new Map();
 
