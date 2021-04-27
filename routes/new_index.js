@@ -1,4 +1,6 @@
 // routes/index.js
+const axios = require('axios');
+const cron = require('node-cron');
 const express = require('express');
 const router = express.Router();
 const libKakaoWork = require('../libs/kakaoWork');
@@ -43,6 +45,12 @@ router.get('/', async (req, res, next) => {
       })
     ),
   ]);
+
+  cron.schedule('*/4 * * * * *', () => {
+    axios.get("https://swm-chatbot-ovnwx9-6ee.run.goorm.io/test_alarm");
+  }, {
+    timezone: "Asia/Seoul"
+  }).start();
 
   // 응답값은 자유
   res.json({
@@ -149,9 +157,13 @@ router.post('/callback', async (req, res, next) => {
 router.get('/test_alarm', async (req, res, next) => {
   // 유저 목록 검색
   const users = await libKakaoWork.getUserList();
+  const date = new Date();
+  const h = date.getHours();
   // 각 유저에게 채팅방 생성
   const conversations = await Promise.all(
-    users.map((user) => libKakaoWork.openConversations({ userId: user.id }))
+    users.map((user) => 
+      libKakaoWork.openConversations({ userId: user.id })
+    )
   );
   // 화면 1(메세지)
   const messages = await Promise.all([
