@@ -7,44 +7,48 @@ const libKakaoWork = require('../libs/kakaoWork');
 const db = require('../libs/db/on_memory');
 
 router.get('/', async (req, res, next) => {
-  // 유저 목록 검색
-  const users = await libKakaoWork.getUserList();
-  // 각 유저에게 채팅방 생성
-  const conversations = await Promise.all(
-    users.map((user) => libKakaoWork.openConversations({ userId: user.id }))
-  );
-  // 화면 1(메세지)
-  const messages = await Promise.all([
-    conversations.map((conversation) =>
-      libKakaoWork.sendMessage({
-        conversationId: conversation.id,
-        text: '[오늘 뭐입지?] 서비스 이용 안내',
-        blocks: [
-          {
-            type: 'header',
-            text: '오늘 뭐 입지?',
-            style: 'blue',
-          },
-		      {
-            type : "image_link",
-            url : "https://swm-chatbot-ovnwx9-6ee.run.goorm.io/resources/introduction_logo2.jpeg"
-          },
-          {
-            type: 'text',
-            text: '안녕하세요! 저희는 <> 챗봇입니다. <>기능이 있습니다. <> 해서 <> 를 해보세요',
-            markdown: true,
-          },
-          {
-            type: 'button',
-            action_type: 'call_modal',
-            value: '시간 설정하기',
-            text: '시간 설정하기',
-            style: 'default',
-          },
-        ],
-      })
-    ),
-  ]);
+  var cur = null;
+  do { // 해당 스페이스의 모든 인원들에게 접근하도록 loop
+    const data = await libKakaoWork.getUserList(cur);
+    const users = data.users;
+    cur = data.cursor;
+    // 가져온 ~10명에 대해서 각각 채팅방 생성
+    const conversations = await Promise.all(
+      users.map((user) => libKakaoWork.openConversations({ userId: user.id }))
+    );
+    // 생성한 채팅방에 메세지 전송
+    const messages = await Promise.all([
+      conversations.map((conversation) =>
+        libKakaoWork.sendMessage({
+          conversationId: conversation.id,
+          text: '[오늘 뭐입지?] 서비스 이용 안내',
+          blocks: [
+            {
+              type: 'header',
+              text: '오늘 뭐 입지?',
+              style: 'blue',
+            },
+            {
+              type : "image_link",
+              url : "https://swm-chatbot-ovnwx9-6ee.run.goorm.io/resources/introduction_logo2.jpeg"
+            },
+            {
+              type: 'text',
+              text: '안녕하세요! 저희는 <> 챗봇입니다. <>기능이 있습니다. <> 해서 <> 를 해보세요',
+              markdown: true,
+            },
+            {
+              type: 'button',
+              action_type: 'call_modal',
+              value: '시간 설정하기',
+              text: '시간 설정하기',
+              style: 'default',
+            },
+          ],
+        })
+      ),
+    ]);
+  } while (cur != null);
 
   cron.schedule('*/4 * * * * *', () => {
     axios.get("https://swm-chatbot-ovnwx9-6ee.run.goorm.io/alarm");

@@ -9,12 +9,10 @@ const kakaoInstance = axios.create({
   },
 });
 
-// libs/kakaoWork/index.js
-
 // 유저 목록 검색 (1)
-exports.getUserList = async () => {
-  const res = await kakaoInstance.get('/v1/users.list');
-  return res.data.users;
+exports.getUserList = async (cursor) => {
+	const res = await kakaoInstance.get('/v1/users.list?cursor='+cursor);
+  return res.data;
 };
 
 // 채팅방 생성 (2)
