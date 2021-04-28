@@ -13,7 +13,7 @@ const kakaoInstance = axios.create({
 
 // 유저 목록 검색 (1)
 exports.getUserList = async () => {
-  const res = await kakaoInstance.get('/v1/users.list');
+  const res = await kakaoInstance.get('/v1/users.list?limit=100');
   return res.data.users;
 };
 
