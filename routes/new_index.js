@@ -58,9 +58,9 @@ router.get('/', async (req, res, next) => {
 
   // 응답값은 자유
   res.json({
-    users,
-    conversations,
-    messages,
+    // users,
+    // conversations,
+    // messages,
   });
 });
 
