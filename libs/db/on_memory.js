@@ -1,10 +1,11 @@
 // libs/db/on_memory.js
-exports.user_times = new Map();
+exports.user_times = new Array();
+for (var i=0; i<24; i++) this.user_times.push(new Set());
 
-exports.getUser = (user_id) => {
-  return this.user_times.has(user_id)? this.user_times.get(user_id): null;
+exports.getUsers = (t) => {
+  return this.user_times[t].size? user_times[t]: null;
 };
 
-exports.addUser = (user_id, h) => {
-  this.user_times.set(user_id, h);
+exports.addUser = (t, user_id) => {
+  this.user_times[t].add(user_id);
 };

@@ -144,8 +144,8 @@ router.post('/callback', async (req, res, next) => {
       var st = actions.setting_time;
       var h = st[4] > '0'? st[4]+st[6]: st[6];
       h = Number(h);
-      db.addUser(message.user_id, h);
-			console.log("add "+message.user_id+" "+db.getUser(message.user_id));
+      db.addUser(h, message.user_id);
+			console.log("add "+message.user_id+" "+db.getUsers(h));
     break;
     default:
   }
