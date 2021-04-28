@@ -144,8 +144,8 @@ router.post('/callback', async (req, res, next) => {
       var st = actions.setting_time;
       var h = st[4] > '0'? st[4]+st[6]: st[6];
       h = Number(h);
-      db.addUser(h, message.user_id);
-			console.log("add "+message.user_id+" "+db.getUsers(h));
+      db.addCon(h, message.conversation_id);
+			console.log("add "+message.conversation_id+" "+db.getCons(h));
     break;
     default:
   }
@@ -156,29 +156,34 @@ router.post('/callback', async (req, res, next) => {
 // 지정된 시간 알림 예시
 router.get('/test_alarm', async (req, res, next) => {
   // 유저 목록 검색
-  const users = await libKakaoWork.getUserList();
+  const rusers = await libKakaoWork.getUserList();
   const date = new Date();
   const h = date.getHours();
+  const cons = db.getCons(h);
   // 각 유저에게 채팅방 생성
-  var conversations = new Array();
-  var userkeys = Object.keys(users);
-  for (var i=0; i<userkeys.length; i++) {
-		console.log(users[userkeys[i]]);
-		var conversation = await libKakaoWork.openConversations({ userId: users[userkeys[i]].id });
-    conversations.push(conversation);
-		console.log(conversation);
-		// console.log(Object.keys(conversation));
-  }
-  // const conversations = await Promise.all(
-  //   users.map((user) => 
-  //     libKakaoWork.openConversations({ userId: user.id })
-  //   )
-  // );
+  // var conversations = new Array();
+  // var userkeys = Object.keys(users);
+  // for (var i=0; i<userkeys.length; i++) {
+	// 	console.log(users[userkeys[i]]);
+	// 	var conversation = await libKakaoWork.openConversations({ userId: users[userkeys[i]].id });
+  //   conversations.push(conversation);
+	// 	console.log(conversation);
+  // }
+	if (cons != null) {
+		// users.forEach(async (user) => {
+		// 	console.log("user:"+user);
+		// 	console.log("rusers['0'].id:"+rusers['0'].id);
+		// 	var conversation = await libKakaoWork.openConversations({ userId: user });
+		// 	conversations.push(conversation);
+		// 	console.log(conversation);
+		// });
+  
   // 화면 1(메세지)
   const messages = await Promise.all([
-    conversations.map((conversation) =>
+    // cons.map((con) =>
+		cons.forEach((con_id, dump, setObject) =>
       libKakaoWork.sendMessage({
-        conversationId: conversation.id,
+        conversationId: con_id,
         text: '오늘 뭐입지?',
         blocks: [
           {
@@ -217,12 +222,12 @@ router.get('/test_alarm', async (req, res, next) => {
       })
     ),
   ]);
-
+	}
   // 응답값은 자유
   res.json({
-      users,
-      conversations,
-      messages,
+      // users,
+      // conversations,
+      // messages,
   });
 });
 
