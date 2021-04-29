@@ -34,7 +34,7 @@ router.get('/', async (req, res, next) => {
             },
             {
               type: 'text',
-              text: '안녕하세요! 저희는 <> 챗봇입니다. <>기능이 있습니다. <> 해서 <> 를 해보세요',
+              text: '안녕하세요!\n 저희는 기온에 따라 적절한 의상을 추천해드리는 챗봇입니다. 매일 알람 받을 시간을 설정해서 오늘의 착장을 완성해보세요!',
               markdown: true,
             },
             {
@@ -84,7 +84,7 @@ router.post('/request', async (req, res, next) => {
           blocks: [
             {
               type: 'label',
-              text: '알림받고 싶은 시간대를 정해주세요',
+              text: '알림받고 싶은 시간대를 설정해주세요.',
               markdown: true,
             },
             {
@@ -109,26 +109,24 @@ router.post('/callback', async (req, res, next) => {
     case '시간 설정 결과':
       await libKakaoWork.sendMessage({
         conversationId: message.conversation_id,
-        text: '알림 시간대 설정 완료',
+        text: '알림 설정 완료!',
         blocks: [
 		      {
             type: 'header',
-            text: '알림 시간대 설정 완료!',
+            text: '알림 설정 완료!',
             style: 'blue',
           },
           {
             type: 'text',
-            text: '알림 시간대가 설정되었습니다.',
+            text: '오늘의 착장 알림이 설정되었습니다.',
             markdown: true,
           },
           {
-            type: 'text',
-            text: '*설정 시간대*',
-            markdown: true,
+            type: 'divider',
           },
           {
             type: 'description',
-            term: '결과',
+            term: '알림시간',
             content: {
               type: 'text',
               text: actions.setting_time,
@@ -140,7 +138,7 @@ router.post('/callback', async (req, res, next) => {
             type: 'button',
             action_type: 'call_modal',
             value: '시간 설정하기',
-            text: '다시 시간 설정하기',
+            text: '알림 시간 변경하기',
             style: 'default',
           },
         ],
@@ -173,7 +171,7 @@ router.get('/alarm', async (req, res, next) => {
           blocks: [
             {
               type: 'header',
-              text: '<날짜> 은 뭐입지',
+              text: '오늘의 추천 착장입니다!',
               style: 'yellow',
             },
             {
@@ -181,21 +179,29 @@ router.get('/alarm', async (req, res, next) => {
               url : "https://swm-chatbot-ovnwx9-6ee.run.goorm.io/resources/today_cloth1.png"
             },
             {
-              type : "image_link",
-              url : "https://swm-chatbot-ovnwx9-6ee.run.goorm.io/resources/today_cloth2.png"
-            },
-            {
               type: 'text',
-              text: '이거 입어라',
+              text: '이 의상은 어떠신가요?',
               markdown: true,
             },
             {
-              type: 'button',
-              action_type: 'call_modal',
-              value: '',
-              text: '딴거 줘',
-              style: 'default',
-            },
+              type: "action",
+              elements: [
+                {
+                  type: "button",
+                  action_type: 'call_modal',
+                  value: '',
+                  text: "별로에요!",
+                  style: "danger"
+                },
+                {
+                  type: "button",
+                  action_type: 'call_modal',
+                  value: '',
+                  text : "좋아요!",
+                  style: "primary"
+                }
+              ]
+            }, 
             {
               type: 'button',
               action_type: 'call_modal',
