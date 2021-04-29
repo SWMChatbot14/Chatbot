@@ -105,10 +105,11 @@ router.post('/request', async (req, res, next) => {
 
 router.post('/callback', async (req, res, next) => {
   const { message, actions, action_time, value } = req.body;
+  const con_id = message.conversation_id;
   switch (value) {
     case '시간 설정 결과':
       await libKakaoWork.sendMessage({
-        conversationId: message.conversation_id,
+        conversationId: con_id,
         text: '알림 설정 완료!',
         blocks: [
 		      {
@@ -148,7 +149,123 @@ router.post('/callback', async (req, res, next) => {
       h = Number(h);
       db.addCon(h, message.conversation_id);
 			console.log("add "+message.conversation_id+" "+db.getCons(h));
-    break;
+      break;
+    case 'not-good':
+      var rej = db.getRejects(con_id);
+      if (rej == null) rej = 0;
+      rej = (rej+1)%3; // 세 번 거절하면 0으로 리셋
+      db.setRejects(con_id, rej);
+      if (rej) { // 아직 세 번 거절하지 않았다 -> 추천 계속
+        await libKakaoWork.sendMessage({
+          conversationId: con_id,
+          text: '다른 거 뭐입지?',
+          blocks: [
+            {
+              type: 'header',
+              text: '또 다른 추천 착장입니다!',
+              style: 'yellow',
+            },
+            {
+              type : "image_link",
+              url : "https://swm-chatbot-ovnwx9-6ee.run.goorm.io/resources/today_cloth1.png"
+            },
+            {
+              type: 'text',
+              text: '이 의상은 어떠신가요?',
+              markdown: true,
+            },
+            {
+              type: "action",
+              elements: [
+                {
+                  type: "button",
+                  action_type: 'submit_action',
+                  action_name: 'not-good',
+                  value: 'not-good',
+                  text: "별로에요!",
+                  style: "danger"
+                },
+                {
+                  type: "button",
+                  action_type: 'submit_action',
+                  action_name: 'good',
+                  value: 'good',
+                  text : "좋아요!",
+                  style: "primary"
+                }
+              ]
+            }, 
+            {
+              type: 'button',
+              action_type: 'call_modal',
+              value: '시간 설정하기',
+              text: '알림 시간 바꾸기',
+              style: 'default',
+            },
+          ],
+        })
+        rej = 0;
+      }
+      else { // 세 번 거절한 경우 추천 x..
+        await libKakaoWork.sendMessage({
+          conversationId: con_id,
+          text: '오늘은 아닌가 봐',
+          blocks: [
+            {
+              type: 'header',
+              text: '오늘은 날이 아닌가 봐',
+              style: 'yellow',
+            },
+            {
+              type: 'text',
+              text: '집이 최고야 ~',
+              markdown: true,
+            },
+            {
+              type: "button",
+              action_type: 'submit_action',
+              action_name: 'not-good',
+              value: 'not-good',
+              text: "별로에요!",
+              style: "danger"
+            },
+            {
+              type: 'button',
+              action_type: 'call_modal',
+              value: '시간 설정하기',
+              text: '알림 시간 바꾸기',
+              style: 'default',
+            },
+          ],
+        })
+      }
+      break;
+    case 'good':
+      db.setRejects(con_id, 0);
+      await libKakaoWork.sendMessage({
+        conversationId: con_id,
+        text: '저희도 좋아요',
+        blocks: [
+          {
+            type: 'header',
+            text: '좋아요 !',
+            style: 'yellow',
+          },
+          {
+            type: 'text',
+            text: '즐거운 외출 되시길 바래요 ~',
+            markdown: true,
+          },
+          {
+            type: 'button',
+            action_type: 'call_modal',
+            value: '시간 설정하기',
+            text: '알림 시간 바꾸기',
+            style: 'default',
+          },
+        ],
+      })
+      break;
     default:
   }
 	
@@ -188,15 +305,17 @@ router.get('/alarm', async (req, res, next) => {
               elements: [
                 {
                   type: "button",
-                  action_type: 'call_modal',
-                  value: '',
+                  action_type: 'submit_action',
+                  action_name: 'not-good',
+                  value: 'not-good',
                   text: "별로에요!",
                   style: "danger"
                 },
                 {
                   type: "button",
-                  action_type: 'call_modal',
-                  value: '',
+                  action_type: 'submit_action',
+                  action_name: 'good',
+                  value: 'good',
                   text : "좋아요!",
                   style: "primary"
                 }
