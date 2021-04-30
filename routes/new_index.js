@@ -9,7 +9,7 @@ const db = require('../libs/db/on_memory');
 // 1. child-process모듈의 spawn 취득
 const spawn = require('child_process').spawn;
 // 2. spawn을 통해 "python 파이썬파일.py" 명령어 실행
-var temp_today = "15";
+var temp_today = "20_22";
 console.log("static temp_today:" + temp_today);
 
 router.get('/', async (req, res, next) => {
@@ -73,7 +73,9 @@ router.get('/', async (req, res, next) => {
 		pertemps = [...pertemps].sort((a, b) => a - b);
 		var median = pertemps[middle];
 		console.log("median:" + median);
-		temp_today = "20_22";
+		temp_today = Number(median);
+		temp_today = temp_today > 23 ? "23_26" : temp_today > 20 ? "20_22" : temp_today > "17" ? "17_19" : "12_16"
+		// temp_today = "20_22";
 		console.log("in /, temp_today:" + temp_today);
 
 
@@ -377,8 +379,9 @@ router.get('/alarm', async (req, res, next) => {
 		pertemps = [...pertemps].sort((a, b) => a - b);
 		var median = pertemps[middle];
 		console.log("median:" + median);
-
-		temp_today = "20_22";
+		temp_today = Number(median);
+		temp_today = temp_today > 23 ? "23_26" : temp_today > 20 ? "20_22" : temp_today > "17" ? "17_19" : "12_16"
+		// temp_today = "20_22";
 		console.log("in /alarm, temp_today: " + temp_today);
 
 
