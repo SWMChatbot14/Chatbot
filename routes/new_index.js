@@ -9,8 +9,8 @@ const db = require('../libs/db/on_memory');
 // 1. child-process모듈의 spawn 취득
 const spawn = require('child_process').spawn;
 // 2. spawn을 통해 "python 파이썬파일.py" 명령어 실행
-var temp_today = "17_19";
-
+var temp_today = "15";
+console.log("static temp_today:"+temp_today);
 
 router.get('/', async (req, res, next) => {
 	var cur = null;
@@ -55,9 +55,8 @@ router.get('/', async (req, res, next) => {
 		  ),
 	]);
   } while (cur != null);
-
-  cron.schedule('*/10 * * * * *', () => {
-		// python3 ./libs/crawling/weather.py 실행
+  
+  // python3 ./libs/crawling/weather.py 실행
 		const result = spawn('python3', ['./libs/crawling/weather.py']);
 		// stdout의 'data'이벤트리스너로 실행결과를 받는다.
 		result.stdout.on('data', function(data) {
@@ -73,11 +72,30 @@ router.get('/', async (req, res, next) => {
 			pertemps = [...pertemps].sort((a, b) => a - b);
 			var median = pertemps[middle];
 			console.log("median:"+median);
+			temp_today = "20_22"; console.log("in /, temp_today:"+temp_today);
 			
-			temp_today = "20_22";
+			
+			
+			
+			
+			// weather parsing start
+			
+			let tmp = JSON.parse(data.toString());
+
+			let weather_rain = false;
+			for(let i = 0 ; i < Object.keys(tmp.weather).length ; i++){
+				if(tmp.weather[i] == '비' || tmp.weather[i] == '빗방울')
+					weather_rain = true;
+			}
+			console.log("today rain : " + weather_rain);
+			
+			// weather parsing end
+			
 		});
 		// 4. 에러 발생 시, stderr의 'data'이벤트리스너로 실행결과를 받는다.
 		result.stderr.on('data', function(data) { console.log(data.toString()); });
+	
+  cron.schedule('*/10 * * * * *', () => {
     axios.get("https://swm-chatbot-ovnwx9-6eeo3l.run.goorm.io/alarm");
   }, {
     timezone: "Asia/Seoul"
@@ -188,8 +206,8 @@ router.post('/callback', async (req, res, next) => {
 				num_male = filelist.length; console.log("num_male:"+num_male); 
 				fs.readdir(dir_female, (error, filelist) => {
 					num_female = filelist.length; console.log("num_female:"+num_female);
-					var idx_male = Math.floor(Math.random()*num_male); console.log("idx_male:"+idx_male);
-					var idx_female = Math.floor(Math.random()*num_female); console.log("idx_female:"+idx_female);
+					var idx_male = Math.ceil(Math.random()*num_male); console.log("idx_male:"+idx_male);
+					var idx_female = Math.ceil(Math.random()*num_female); console.log("idx_female:"+idx_female);
 		  			var rej = db.getRejects(con_id);
       				if (rej == null) rej = 0;
       				rej = (rej+1)%3; // 세 번 거절하면 0으로 리셋
@@ -325,6 +343,46 @@ router.get('/alarm', async (req, res, next) => {
   const h = date.getHours();
   const cons = db.getCons(h);
 	
+	// python3 ./libs/crawling/weather.py 실행
+		const result = spawn('python3', ['./libs/crawling/weather.py']);
+		// stdout의 'data'이벤트리스너로 실행결과를 받는다.
+		result.stdout.on('data', function(data) {
+			var weather_json = JSON.parse(data.toString());
+			var pertemps = new Array();
+			var temp_keys = Object.keys(weather_json.pertemp);
+			for (var i=0; i<temp_keys.length; i++) {
+				var key = temp_keys[i];
+				var temp = weather_json.pertemp[key];
+				pertemps.push(Number(temp)); // pertemps는 array. 그 날 체감 온도 나옴
+			}
+			let middle = Math.floor(pertemps.length / 2);
+			pertemps = [...pertemps].sort((a, b) => a - b);
+			var median = pertemps[middle];
+			console.log("median:"+median);
+			
+			temp_today = "20_22"; console.log("in /alarm, temp_today: "+temp_today);
+			
+			
+			
+			
+			
+			// weather parsing start
+			
+			let tmp = JSON.parse(data.toString());
+
+			let weather_rain = false;
+			for(let i = 0 ; i < Object.keys(tmp.weather).length ; i++){
+				if(tmp.weather[i] == '비' || tmp.weather[i] == '빗방울')
+					weather_rain = true;
+			}
+			console.log("today rain : " + weather_rain);
+			
+			// weather parsing end
+			
+		});
+		// 4. 에러 발생 시, stderr의 'data'이벤트리스너로 실행결과를 받는다.
+		result.stderr.on('data', function(data) { console.log(data.toString()); });
+	
 	// var temp_today = "20_22"
 	var dir_male = './resources/male/'+temp_today; console.log("dir_male:"+dir_male);
 	var dir_female = './resources/female/'+temp_today; console.log("dir_female:"+dir_female);
@@ -333,8 +391,8 @@ router.get('/alarm', async (req, res, next) => {
 		num_male = filelist.length; console.log("num_male:"+num_male); 
 		fs.readdir(dir_female, (error, filelist) => {
 			num_female = filelist.length; console.log("num_female:"+num_female);
-			var idx_male = Math.floor(Math.random()*num_male); console.log("idx_male:"+idx_male);
-			var idx_female = Math.floor(Math.random()*num_female); console.log("idx_female:"+idx_female);	
+			var idx_male = Math.ceil(Math.random()*num_male); console.log("idx_male:"+idx_male);
+			var idx_female = Math.ceil(Math.random()*num_female); console.log("idx_female:"+idx_female);	
 			if (cons != null) {
     const messages = cons.forEach((con_id, dump, setObject) =>
         libKakaoWork.sendMessage({
