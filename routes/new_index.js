@@ -108,7 +108,7 @@ router.get('/', async (req, res, next) => {
 		console.log(data.toString());
 	});
 
-	cron.schedule('*/10 * * * * *', () => {
+	cron.schedule('0 * * * *', () => {
 		axios.get("https://swm-chatbot-ovnwx9-6eeo3l.run.goorm.io/alarm");
 	}, {
 		timezone: "Asia/Seoul"
