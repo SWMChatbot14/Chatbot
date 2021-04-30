@@ -51,6 +51,14 @@ router.get('/', async (req, res, next) => {
 							text: '시간 설정하기',
 							style: 'default',
 						},
+						{
+							type: "button",
+							action_type: 'submit_action',
+							action_name: 'show-now',
+							value: 'show-now',
+							text: "지금 바로 볼래요!",
+							style: "default"
+						},
 					],
 				})
 			),
@@ -321,8 +329,6 @@ router.post('/callback', async (req, res, next) => {
 					}
 				});
 			});
-
-
 			break;
 		case 'good':
 			db.setRejects(con_id, 0);
@@ -349,6 +355,77 @@ router.post('/callback', async (req, res, next) => {
 				],
 			})
 			break;
+		case 'show-now':
+			// var temp_today = "20_22"
+			var dir_male = './resources/male/' + temp_today;
+			console.log("dir_male:" + dir_male);
+			var dir_female = './resources/female/' + temp_today;
+			console.log("dir_female:" + dir_female);
+			var num_male, num_female;
+			fs.readdir(dir_male, (error, filelist) => {
+				num_male = filelist.length;
+				console.log("num_male:" + num_male);
+				fs.readdir(dir_female, (error, filelist) => {
+					num_female = filelist.length;
+					console.log("num_female:" + num_female);
+					var idx_male = Math.ceil(Math.random() * num_male);
+					console.log("idx_male:" + idx_male);
+					var idx_female = Math.ceil(Math.random() * num_female);
+					console.log("idx_female:" + idx_female);
+					var rej = 0;
+					db.setRejects(con_id, rej);
+					libKakaoWork.sendMessage({
+						conversationId: con_id,
+						text: '다른 거 뭐입지?',
+						blocks: [{
+								type: 'header',
+								text: '오늘 날씨에 알맞는 추천 착장입니다!',
+								style: 'yellow',
+							},
+							{
+								type: "image_link",
+								url: "https://swm-chatbot-ovnwx9-6eeo3l.run.goorm.io/resources/male/" + temp_today + "/" + idx_male + ".png"
+							},
+							{
+								type: "image_link",
+								url: "https://swm-chatbot-ovnwx9-6eeo3l.run.goorm.io/resources/female/" + temp_today + "/" + idx_female + ".png"
+							},
+							{
+								type: 'text',
+								text: '이 의상은 어떠신가요?',
+								markdown: true,
+							},
+							{
+								type: "action",
+								elements: [{
+										type: "button",
+										action_type: 'submit_action',
+										action_name: 'not-good',
+										value: 'not-good',
+										text: "별로에요!",
+										style: "danger"
+									},
+									{
+										type: "button",
+										action_type: 'submit_action',
+										action_name: 'good',
+										value: 'good',
+										text: "좋아요!",
+										style: "primary"
+									}
+								]
+							},
+							{
+								type: 'button',
+								action_type: 'call_modal',
+								value: '시간 설정하기',
+								text: '알림 시간 바꾸기',
+								style: 'default',
+							},
+						],
+					})
+				});
+			});
 		default:
 	}
 
@@ -429,7 +506,7 @@ router.get('/alarm', async (req, res, next) => {
 						text: '오늘 뭐입지?',
 						blocks: [{
 								type: 'header',
-								text: '오늘의 추천 착장입니다!',
+								text: '오늘 날씨에 알맞는 추천 착장입니다!',
 								style: 'yellow',
 							},
 							{
