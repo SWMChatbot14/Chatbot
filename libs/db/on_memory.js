@@ -24,3 +24,12 @@ exports.getCons = (t) => {
 exports.addCon = (t, con_id) => {
   this.cons[t].add(con_id);
 };
+
+exports.deleteCon = (con_id) => {
+  for (var t=0; t<24; t++) {
+    if (this.cons[t].has(con_id)) {
+      this.cons[t].delete(con_id);
+      break;
+    }
+  }
+}
